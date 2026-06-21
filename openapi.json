@@ -8,8 +8,9 @@
   "paths": {
     "/payment/{bookingId}": {
       "post": {
-        "tags": ["payment-cantroller"],
-        "summary": "Create Booking",
+        "tags": ["payment-controller"],
+        "summary": "Simulate Payment",
+        "description": "Simulates a payment for the specified booking, stores the payment record, and publishes a payment status update event to Kafka.",
         "operationId": "randomPaymentStatus",
         "parameters": [
           {
@@ -20,8 +21,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Booking Created",
+          "200": {
+            "description": "Payment processed successfully",
             "content": {
               "*/*": {
                 "schema": { "$ref": "#/components/schemas/PaymentResponse" }
@@ -29,7 +30,24 @@
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "Invalid booking ID or bad request",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "500": {
+            "description": "Internal server error",
             "content": {
               "*/*": {
                 "schema": { "$ref": "#/components/schemas/ErrorResponse" }
@@ -42,17 +60,6 @@
   },
   "components": {
     "schemas": {
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "timestamp": { "type": "string", "format": "date-time" },
-          "status": { "type": "integer", "format": "int32" },
-          "errorCode": { "type": "string" },
-          "message": { "type": "string" },
-          "path": { "type": "string" },
-          "traceId": { "type": "string" }
-        }
-      },
       "PaymentResponse": {
         "type": "object",
         "properties": {
@@ -65,6 +72,17 @@
           },
           "gatewayPaymentId": { "type": "string" },
           "failureReason": { "type": "string" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "status": { "type": "integer", "format": "int32" },
+          "errorCode": { "type": "string" },
+          "message": { "type": "string" },
+          "path": { "type": "string" },
+          "traceId": { "type": "string" }
         }
       }
     },
